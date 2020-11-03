@@ -461,3 +461,59 @@ weather_df %>%
     ## Coefficients:
     ##        (Intercept)  nameCentralPark_NY    nameWaterhole_WA  
     ##              29.66              -12.29              -22.18
+
+PULSE data
+
+``` r
+pulse_data = 
+  haven::read_sas("./data/public_pulse_data.sas7bdat") %>%
+  janitor::clean_names() %>%
+  pivot_longer(
+    bdi_score_bl:bdi_score_12m,
+    names_to = "visit", 
+    names_prefix = "bdi_score_",
+    values_to = "bdi") %>%
+  select(id, visit, everything()) %>%
+  mutate(
+    visit = str_replace(visit, "bl", "00m"),
+    visit = fct_relevel(visit, str_c(c("00", "01", "06", "12"), "m"))) %>%
+  arrange(id, visit)
+
+print(pulse_data, n = 12)
+```
+
+    ## # A tibble: 4,348 x 5
+    ##       id visit   age sex     bdi
+    ##    <dbl> <fct> <dbl> <chr> <dbl>
+    ##  1 10003 00m    48.0 male      7
+    ##  2 10003 01m    48.0 male      1
+    ##  3 10003 06m    48.0 male      2
+    ##  4 10003 12m    48.0 male      0
+    ##  5 10015 00m    72.5 male      6
+    ##  6 10015 01m    72.5 male     NA
+    ##  7 10015 06m    72.5 male     NA
+    ##  8 10015 12m    72.5 male     NA
+    ##  9 10022 00m    58.5 male     14
+    ## 10 10022 01m    58.5 male      3
+    ## 11 10022 06m    58.5 male      8
+    ## 12 10022 12m    58.5 male     NA
+    ## # ... with 4,336 more rows
+
+Airbnb
+
+``` r
+data("nyc_airbnb")
+
+nyc_airbnb %>%
+  filter(neighbourhood_group == "Manhattan") %>% 
+  mutate(
+    neighbourhood = fct_reorder(neighbourhood, price)) %>% 
+  ggplot(aes(x = neighbourhood, y = price)) +
+  geom_boxplot() +
+  coord_flip() + 
+  ylim(0, 1000)
+```
+
+    ## Warning: Removed 109 rows containing non-finite values (stat_boxplot).
+
+<img src="strings_and_factors_files/figure-gfm/unnamed-chunk-27-1.png" width="90%" />

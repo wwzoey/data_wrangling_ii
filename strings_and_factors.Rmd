@@ -289,3 +289,38 @@ weather_df %>%
   lm(tmax ~ name, data = .)
 ```
 
+PULSE data
+
+```{r}
+pulse_data = 
+  haven::read_sas("./data/public_pulse_data.sas7bdat") %>%
+  janitor::clean_names() %>%
+  pivot_longer(
+    bdi_score_bl:bdi_score_12m,
+    names_to = "visit", 
+    names_prefix = "bdi_score_",
+    values_to = "bdi") %>%
+  select(id, visit, everything()) %>%
+  mutate(
+    visit = str_replace(visit, "bl", "00m"),
+    visit = fct_relevel(visit, str_c(c("00", "01", "06", "12"), "m"))) %>%
+  arrange(id, visit)
+
+print(pulse_data, n = 12)
+```
+
+Airbnb
+
+```{r}
+data("nyc_airbnb")
+
+nyc_airbnb %>%
+  filter(neighbourhood_group == "Manhattan") %>% 
+  mutate(
+    neighbourhood = fct_reorder(neighbourhood, price)) %>% 
+  ggplot(aes(x = neighbourhood, y = price)) +
+  geom_boxplot() +
+  coord_flip() + 
+  ylim(0, 1000)
+```
+
